@@ -15,54 +15,50 @@
 //    You should have received a copy of the GNU Affero General Public License      //
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.        //
 //////////////////////////////////////////////////////////////////////////////////////
-#ifndef WRITER_MODCALL_H
-#define WRITER_MODCALL_H
+#ifndef WRITER_SQL_H
+#define WRITER_SQL_H
+
 #include <QObject>
-#include <QFile>
-#include <QDir>
-#include <QDateTime>
-#include <QTextStream>
-#include <QQueue>
+#include <QtSql>
 
-
-/**
- * @brief A class to handle file interaction when writing the modcall buffer.
- */
-class WriterModcall : public QObject
+class WriterSQL : public QObject
 {
     Q_OBJECT
 public:
     /**
-     * @brief Constructor for modcall logwriter
+     * @brief Constructor to generate an logging DB if not created yet and setup SQL logging.
      *
      * @param QObject pointer to the parent object.
      */
-    WriterModcall(QObject* parent = nullptr);
+    WriterSQL(QObject* parent = nullptr);
 
     /**
-     * @brief Deconstructor for modcall logwriter.
-     *
-     * @details Doesn't really do anything, but its here for completeness sake.
+     * @brief Deconstructor of WriterSQL. Closes the DB connection if logmode is switched or the server shuts down.
      */
-    virtual ~WriterModcall() {}
+    virtual ~WriterSQL();
 
     /**
-     * @brief Function to write area buffer into a logfile.
-     * @param QQueue of the area that will be written into the logfile.
-     * @param Name of the area for the filename.
+     * @brief Executed the logging query for the respective event. This method does not validate queries and expects queries to be
+     *        checked before given to execution.
      */
-    void flush(const QString f_area_name, QQueue<QString> f_buffer);
+    void flush(const QSqlQuery& f_query);
 
 private:
     /**
-     * @brief Filename of the logfile used.
+     * @brief The name of the database connection driver.
      */
-    QFile l_logfile;
+    const QString DRIVER;
 
     /**
-     * @brief Directory where logfiles will be stored.
+     * @brief The backing database that stores user details.
+     */
+    QSqlDatabase db;
+
+    /**
+     * @brief Representation of the directory the DB is located in.
      */
     QDir l_dir;
 };
 
-#endif //WRITER_MODCALL_H
+
+#endif //WRITER_SQL_H

@@ -15,54 +15,38 @@
 //    You should have received a copy of the GNU Affero General Public License      //
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.        //
 //////////////////////////////////////////////////////////////////////////////////////
-#ifndef WRITER_MODCALL_H
-#define WRITER_MODCALL_H
-#include <QObject>
-#include <QFile>
-#include <QDir>
-#include <QDateTime>
-#include <QTextStream>
-#include <QQueue>
+#include "include/logger/writer_sql.h"
 
-
-/**
- * @brief A class to handle file interaction when writing the modcall buffer.
- */
-class WriterModcall : public QObject
+WriterSQL::WriterSQL(QObject *parent) :
+    QObject(parent),
+    DRIVER("QSQLITE")
 {
-    Q_OBJECT
-public:
-    /**
-     * @brief Constructor for modcall logwriter
-     *
-     * @param QObject pointer to the parent object.
-     */
-    WriterModcall(QObject* parent = nullptr);
+    l_dir.setPath("logs/");
+    if (!l_dir.exists()) {
+        l_dir.mkpath(".");
+    }
 
-    /**
-     * @brief Deconstructor for modcall logwriter.
-     *
-     * @details Doesn't really do anything, but its here for completeness sake.
-     */
-    virtual ~WriterModcall() {}
+    l_dir.setPath("logs/sql");
+    if (!l_dir.exists()) {
+        l_dir.mkpath(".");
+    }
 
-    /**
-     * @brief Function to write area buffer into a logfile.
-     * @param QQueue of the area that will be written into the logfile.
-     * @param Name of the area for the filename.
-     */
-    void flush(const QString f_area_name, QQueue<QString> f_buffer);
+    const QString db_filename = "logs/sql/log.db";
+    QFileInfo db_info(db_filename);
+    if(!db_info.isReadable() || !db_info.isWritable())
+        qCritical() << tr("Database Error: Missing permissions. Check if \"%1\" is writable.").arg(db_filename);
+    db = QSqlDatabase::addDatabase(DRIVER);
+    db.setDatabaseName("logs/sql/log.db");
+    if (!db.open())
+        qCritical() << "Database Error:" << db.lastError();
+}
 
-private:
-    /**
-     * @brief Filename of the logfile used.
-     */
-    QFile l_logfile;
+WriterSQL::~WriterSQL()
+{
 
-    /**
-     * @brief Directory where logfiles will be stored.
-     */
-    QDir l_dir;
-};
+}
 
-#endif //WRITER_MODCALL_H
+void WriterSQL::flush(const QSqlQuery& f_query)
+{
+
+}

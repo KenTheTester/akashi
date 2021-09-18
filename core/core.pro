@@ -49,6 +49,7 @@ SOURCES += \
     src/logger/writer_modcall.cpp \
     src/logger/writer_full.cpp \
     src/music_manager.cpp
+    src/logger/writer_sql.cpp
 
 HEADERS += include/aoclient.h \
     include/aopacket.h \
@@ -65,3 +66,4 @@ HEADERS += include/aoclient.h \
     include/logger/writer_modcall.h \
     include/logger/writer_full.h \
     include/music_manager.h
+    include/logger/writer_sql.h
