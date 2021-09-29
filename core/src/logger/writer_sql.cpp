@@ -35,10 +35,10 @@ WriterSQL::WriterSQL(QObject *parent) :
     QFileInfo db_info(db_filename);
     if(!db_info.isReadable() || !db_info.isWritable())
         qCritical() << tr("Database Error: Missing permissions. Check if \"%1\" is writable.").arg(db_filename);
-    db = QSqlDatabase::addDatabase(DRIVER);
-    db.setDatabaseName("logs/sql/log.db");
-    if (!db.open())
-        qCritical() << "Database Error:" << db.lastError();
+    m_log_db = QSqlDatabase::addDatabase(DRIVER, "AkashiLogDB");
+    m_log_db.setDatabaseName("logs/sql/log.db");
+    if (!m_log_db.open())
+        qCritical() << "Database Error:" << m_log_db.lastError();
 }
 
 WriterSQL::~WriterSQL()
@@ -48,5 +48,5 @@ WriterSQL::~WriterSQL()
 
 void WriterSQL::flush(const QSqlQuery& f_query)
 {
-
+    Q_UNUSED(f_query);
 }

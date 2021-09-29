@@ -52,7 +52,7 @@ private:
     /**
      * @brief The backing database that stores user details.
      */
-    QSqlDatabase db;
+    QSqlDatabase m_log_db;
 
     /**
      * @brief Representation of the directory the DB is located in.
