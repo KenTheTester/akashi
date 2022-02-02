@@ -15,52 +15,74 @@
 //    You should have received a copy of the GNU Affero General Public License      //
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.        //
 //////////////////////////////////////////////////////////////////////////////////////
-#ifndef DATA_TYPES_H
-#define DATA_TYPES_H
+#ifndef WRITER_SQL_H
+#define WRITER_SQL_H
 
+//If the DB is ever updated, this needs to be increased in order to allow updateDB to run.
+#define TARGET_DB 1
+
+#include <QObject>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDir>
 #include <QDebug>
 
-/**
- * @brief A class for handling several custom data types.
- */
-class DataTypes
+class WriterSQL : public QObject
 {
-    Q_GADGET
-
-  public:
-    /**
-     * @brief Custom type for authorization types.
-     */
-    enum class AuthType
-    {
-        SIMPLE,
-        ADVANCED
-    };
-    Q_ENUM(AuthType);
+    Q_OBJECT
+public:
 
     /**
-     * @brief Custom type for logging types.
+     * @brief Constructor for an SQL log writer. Creates and updates its DB if necessary.
+     *
+     * @param Pointer to the logger.
      */
-    enum class LogType
-    {
-        MODCALL,
-        FULL,
-        FULLAREA,
-        SQL
-    };
-    Q_ENUM(LogType)
+    WriterSQL(QObject* parent = nullptr);
+
+    /**
+     * @brief Deconstructor for the SQL writer.
+     */
+    virtual ~WriterSQL();
+
+    /**
+     * @brief Executes an SQL query on the log database.
+     *
+     * @param SQL query to execute
+     */
+    void flush(QSqlQuery f_query);
+
+private:
+    /**
+     * @brief The name of the database connection driver.
+     */
+    const QString DRIVER;
+
+    /**
+     * @brief The backing database that stores logfiles.
+     */
+    QSqlDatabase m_db;
+
+    /**
+     * @brief The current server DB version.
+     */
+    int db_version;
+
+    /**
+     * @brief checkVersion Checks the current server DB version.
+     *
+     * @return Returns the server DB version.
+     */
+    int checkVersion();
+
+    /**
+     * @brief updateDB Updates the server DB to the latest version.
+     *
+     * @param current_version The current DB version.
+     */
+    void updateDB(int current_version);
 };
 
-template <typename T>
-T toDataType(const QString &f_string)
-{
-    return QVariant(f_string).value<T>();
-}
 
-template <typename T>
-QString fromDataType(const T &f_t)
-{
-    return QVariant::fromValue(f_t).toString();
-}
 
-#endif // DATA_TYPES_H
+#endif //WRITER_SQL_H

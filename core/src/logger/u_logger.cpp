@@ -21,13 +21,16 @@ ULogger::ULogger(QObject *parent) :
     QObject(parent)
 {
     switch (ConfigManager::loggingType()) {
-    case DataTypes::LogType::MODCALL:
-        writerModcall = new WriterModcall;
-        break;
-    case DataTypes::LogType::FULL:
-    case DataTypes::LogType::FULLAREA:
-        writerFull = new WriterFull;
-        break;
+        case DataTypes::LogType::MODCALL :
+            writerModcall = new WriterModcall(this);
+            break;
+        case DataTypes::LogType::FULL :
+        case DataTypes::LogType::FULLAREA :
+            writerFull = new WriterFull(this);
+            break;
+        case DataTypes::LogType::SQL :
+            writerSQL = new WriterSQL(this);
+            break;
     }
     loadLogtext();
 }
@@ -35,13 +38,16 @@ ULogger::ULogger(QObject *parent) :
 ULogger::~ULogger()
 {
     switch (ConfigManager::loggingType()) {
-    case DataTypes::LogType::MODCALL:
-        writerModcall->deleteLater();
-        break;
-    case DataTypes::LogType::FULL:
-    case DataTypes::LogType::FULLAREA:
-        writerFull->deleteLater();
-        break;
+        case DataTypes::LogType::MODCALL :
+            writerModcall->deleteLater();
+            break;
+        case DataTypes::LogType::FULL :
+        case DataTypes::LogType::FULLAREA :
+            writerFull->deleteLater();
+            break;
+        case DataTypes::LogType::SQL :
+            writerSQL->deleteLater();
+            break;
     }
 }
 

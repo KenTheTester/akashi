@@ -77,4 +77,5 @@ bin_tests/unittest_*
 bin/logs/
 bin/core.lib
 bin/libcore.a
+bin/storage/database/*
 doxygen/html

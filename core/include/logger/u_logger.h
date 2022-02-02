@@ -21,6 +21,7 @@
 #include "include/config_manager.h"
 #include "include/logger/writer_full.h"
 #include "include/logger/writer_modcall.h"
+#include "include/logger/writer_sql.h"
 #include <QDateTime>
 #include <QMap>
 #include <QObject>
@@ -126,6 +127,11 @@ class ULogger : public QObject
      * @brief Pointer to full writer. Handles single messages in one file.
      */
     WriterFull *writerFull;
+
+    /**
+     * @brief Pointer to the SQL writer. Handles logging database specifics.
+     */
+    WriterSQL* writerSQL;
 
     /**
      * @brief Table that contains template strings for text-based logger format.
