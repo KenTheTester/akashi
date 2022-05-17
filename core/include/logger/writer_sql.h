@@ -18,27 +18,27 @@
 #ifndef WRITER_SQL_H
 #define WRITER_SQL_H
 
-//If the DB is ever updated, this needs to be increased in order to allow updateDB to run.
+// If the DB is ever updated, this needs to be increased in order to allow updateDB to run.
 #define TARGET_DB 1
 
+#include <QDebug>
+#include <QDir>
 #include <QObject>
 #include <QSqlDatabase>
-#include <QSqlQuery>
 #include <QSqlError>
-#include <QDir>
-#include <QDebug>
+#include <QSqlQuery>
 
 class WriterSQL : public QObject
 {
     Q_OBJECT
-public:
 
+  public:
     /**
      * @brief Constructor for an SQL log writer. Creates and updates its DB if necessary.
      *
      * @param Pointer to the logger.
      */
-    WriterSQL(QObject* parent = nullptr);
+    WriterSQL(QObject *parent = nullptr);
 
     /**
      * @brief Deconstructor for the SQL writer.
@@ -52,7 +52,14 @@ public:
      */
     void flush(QSqlQuery f_query);
 
-private:
+    /**
+     * @brief Returns a pointer to the log database.
+     *
+     * @return const pointer to log database
+     */
+    const QSqlDatabase getDatabase();
+
+  private:
     /**
      * @brief The name of the database connection driver.
      */
@@ -83,6 +90,4 @@ private:
     void updateDB(int current_version);
 };
 
-
-
-#endif //WRITER_SQL_H
+#endif // WRITER_SQL_H

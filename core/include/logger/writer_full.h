@@ -37,7 +37,6 @@ class WriterFull : public QObject
      * @param QObject pointer to the parent object.
      */
     WriterFull(QObject *parent = nullptr);
-    ;
 
     /**
      * @brief Deconstructor for full logwriter.

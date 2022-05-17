@@ -21,16 +21,18 @@ ULogger::ULogger(QObject *parent) :
     QObject(parent)
 {
     switch (ConfigManager::loggingType()) {
-        case DataTypes::LogType::MODCALL :
-            writerModcall = new WriterModcall(this);
-            break;
-        case DataTypes::LogType::FULL :
-        case DataTypes::LogType::FULLAREA :
-            writerFull = new WriterFull(this);
-            break;
-        case DataTypes::LogType::SQL :
-            writerSQL = new WriterSQL(this);
-            break;
+    case DataTypes::LogType::MODCALL:
+        writerModcall = new WriterModcall(this);
+        break;
+    case DataTypes::LogType::FULL:
+        Q_FALLTHROUGH();
+    case DataTypes::LogType::FULLAREA:
+        writerFull = new WriterFull(this);
+        break;
+    case DataTypes::LogType::SQL:
+        writerSQL = new WriterSQL(this);
+        m_log_db = writerSQL->getDatabase();
+        break;
     }
     loadLogtext();
 }
@@ -38,16 +40,16 @@ ULogger::ULogger(QObject *parent) :
 ULogger::~ULogger()
 {
     switch (ConfigManager::loggingType()) {
-        case DataTypes::LogType::MODCALL :
-            writerModcall->deleteLater();
-            break;
-        case DataTypes::LogType::FULL :
-        case DataTypes::LogType::FULLAREA :
-            writerFull->deleteLater();
-            break;
-        case DataTypes::LogType::SQL :
-            writerSQL->deleteLater();
-            break;
+    case DataTypes::LogType::MODCALL:
+        writerModcall->deleteLater();
+        break;
+    case DataTypes::LogType::FULL:
+    case DataTypes::LogType::FULLAREA:
+        writerFull->deleteLater();
+        break;
+    case DataTypes::LogType::SQL:
+        writerSQL->deleteLater();
+        break;
     }
 }
 
@@ -138,6 +140,16 @@ void ULogger::logConnectionAttempt(const QString &f_ip_address, const QString &f
     QString l_logEntry = QString(m_logtext.value("connect") + "\n")
                              .arg(l_time, f_ip_address, f_ipid, f_hwid);
     updateAreaBuffer("SERVER", l_logEntry);
+    {
+        if (ConfigManager::loggingType() == DataTypes::LogType::SQL) {
+            QSqlQuery query(m_log_db);
+            query.prepare("INSERT OR IGNORE INTO ipids(ipid, ip_address)"
+                          "VALUES(?, ?)");
+            query.addBindValue(f_ipid);
+            query.addBindValue(f_ip_address);
+            writerSQL->flush(query);
+        }
+    }
 }
 
 void ULogger::loadLogtext()

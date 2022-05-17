@@ -14,14 +14,14 @@ WriterSQL::WriterSQL(QObject *parent) :
         qWarning().noquote() << tr("Database Info: Log database not found. Attempting to create new database.");
     }
     else {
-        //We should only check if a file is readable/writeable when it actually exists.
-        if(!db_info.isReadable() || !db_info.isWritable()) {
+        // We should only check if a file is readable/writeable when it actually exists.
+        if (!db_info.isReadable() || !db_info.isWritable()) {
             qCritical() << tr("Database Error: Missing permissions. Check if \"%1\" is writable.").arg(db_filename);
             return;
         }
     }
 
-    m_db = QSqlDatabase::addDatabase(DRIVER,"LOGDB");
+    m_db = QSqlDatabase::addDatabase(DRIVER, "LOGDB");
     m_db.setDatabaseName("storage/database/log.db");
     if (!m_db.open())
         qCritical() << "Database Error:" << m_db.lastError();
@@ -29,17 +29,23 @@ WriterSQL::WriterSQL(QObject *parent) :
     if (db_version != TARGET_DB) {
         updateDB(db_version);
     }
-
 }
 
 WriterSQL::~WriterSQL()
 {
-
+    m_db.close();
 }
 
 void WriterSQL::flush(QSqlQuery f_query)
 {
     f_query.exec();
+    if (!f_query.exec())
+        qDebug() << "SQL Error:" << f_query.lastError().text();
+}
+
+const QSqlDatabase WriterSQL::getDatabase()
+{
+    return m_db;
 }
 
 int WriterSQL::checkVersion()
@@ -57,9 +63,9 @@ int WriterSQL::checkVersion()
 
 void WriterSQL::updateDB(int current_version)
 {
+    QSqlQuery l_query(m_db);
     switch (current_version) {
-    case 0 :
-        QSqlQuery l_query(m_db);
+    case 0:
         l_query.exec("PRAGMA foreign_keys = ON");
         l_query.exec("CREATE TABLE IF NOT EXISTS ipids(ipid INTEGER PRIMARY KEY, ip_address TEXT UNIQUE NOT NULL)");
         l_query.exec("CREATE TABLE hwips(hwip INTEGER PRIMARY KEY,hwid TEXT,ipid INTEGER NOT NULL,FOREIGN KEY (ipid) REFERENCES ipids(ipid)ON DELETE SET NULL,UNIQUE (hwid, ipid) ON CONFLICT IGNORE)");
@@ -71,6 +77,9 @@ void WriterSQL::updateDB(int current_version)
         l_query.exec("CREATE TABLE IF NOT EXISTS misc_event_types(type_id INTEGER PRIMARY KEY,type_name TEXT NOT NULL UNIQUE)");
         l_query.exec("CREATE TABLE IF NOT EXISTS misc_events(event_time DATETIME DEFAULT CURRENT_TIMESTAMP,hwip INTEGER, target_hwip INTEGER,event_subtype INTEGER NOT NULL,event_data TEXT,FOREIGN KEY (hwip) REFERENCES hwips(hwip)ON DELETE CASCADE,FOREIGN KEY (target_hwip) REFERENCES hwips(hwip)ON DELETE CASCADE,FOREIGN KEY (event_subtype) REFERENCES misc_event_types(type_id))");
         l_query.exec("PRAGMA user_version = 1");
-
+        Q_FALLTHROUGH();
+    case 1:
+        // Currently unused.
+        ;
     }
 }

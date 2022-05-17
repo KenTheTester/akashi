@@ -38,7 +38,6 @@ class WriterModcall : public QObject
      * @param QObject pointer to the parent object.
      */
     WriterModcall(QObject *parent = nullptr);
-    ;
 
     /**
      * @brief Deconstructor for modcall logwriter.

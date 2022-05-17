@@ -131,7 +131,7 @@ class ULogger : public QObject
     /**
      * @brief Pointer to the SQL writer. Handles logging database specifics.
      */
-    WriterSQL* writerSQL;
+    WriterSQL *writerSQL;
 
     /**
      * @brief Table that contains template strings for text-based logger format.
@@ -151,6 +151,8 @@ class ULogger : public QObject
         {"ban", "[%1][%2][BAN][%3][%4]"},
         {"modcall", "[%1][%2][MODCALL][%5][%3(%4)]"},
         {"connect", "[%1][CONNECT][%2][%3][%4]"}};
+
+    QSqlDatabase m_log_db;
 };
 
 #endif // U_LOGGER_H
