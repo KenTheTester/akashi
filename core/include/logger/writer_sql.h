@@ -1,24 +1,26 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//    akashi - a server for Attorney Online 2                                       //
-//    Copyright (C) 2020  scatterflower                                             //
-//                                                                                  //
-//    This program is free software: you can redistribute it and/or modify          //
-//    it under the terms of the GNU Affero General Public License as                //
-//    published by the Free Software Foundation, either version 3 of the            //
-//    License, or (at your option) any later version.                               //
-//                                                                                  //
-//    This program is distributed in the hope that it will be useful,               //
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of                //
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 //
-//    GNU Affero General Public License for more details.                           //
-//                                                                                  //
-//    You should have received a copy of the GNU Affero General Public License      //
-//    along with this program.  If not, see <https://www.gnu.org/licenses/>.        //
-//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * akashi - a server for Attorney Online 2
+ * Copyright (C) 2020 - 2022  scatterflower
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef WRITER_SQL_H
 #define WRITER_SQL_H
 
-// If the DB is ever updated, this needs to be increased in order to allow updateDB to run.
+// If the DB is ever updated, this needs to be increased in order to allow
+// updateDB to run.
 #define TARGET_DB 1
 
 #include <QDebug>
@@ -34,7 +36,8 @@ class WriterSQL : public QObject
 
   public:
     /**
-     * @brief Constructor for an SQL log writer. Creates and updates its DB if necessary.
+     * @brief Constructor for an SQL log writer. Creates and updates its DB if
+     * necessary.
      *
      * @param Pointer to the logger.
      */
