@@ -2220,14 +2220,14 @@ class AOClient : public QObject
     /**
      * @brief Signal connected to universal logger. Sends IC chat usage to the logger.
      */
-    void logIC(const QString &f_charName, const QString &f_oocName, const QString &f_ipid,
-               const QString &f_areaName, const QString &f_message);
+    void logIC(const QString& f_charName, const QString &f_showName, const QString& f_oocName,
+               const QString& f_ipid, const QString& f_hwid, const QString& f_areaName, const QString &f_message);
 
     /**
      * @brief Signal connected to universal logger. Sends OOC chat usage to the logger.
      */
-    void logOOC(const QString &f_charName, const QString &f_oocName, const QString &f_ipid,
-                const QString &f_areaName, const QString &f_message);
+    void logOOC(const QString& f_charName, const QString& f_oocName, const QString& f_ipid,
+                const QString& f_hwid, const QString& f_areaName, const QString& f_message);
 
     /**
      * @brief Signal connected to universal logger. Sends login attempt to the logger.
@@ -2238,7 +2238,7 @@ class AOClient : public QObject
     /**
      * @brief Signal connected to universal logger. Sends command usage to the logger.
      */
-    void logCMD(const QString &f_charName, const QString &f_ipid, const QString &f_oocName, const QString f_command,
+    void logCMD(const QString& f_charName, const QString &f_ipid, const QString &f_hwid, const QString& f_oocName, const QString f_command,
                 const QStringList f_args, const QString f_areaName);
 
     /**

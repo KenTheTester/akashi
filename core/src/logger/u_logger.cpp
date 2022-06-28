@@ -16,20 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "include/logger/u_logger.h"
+#include "include/data_types.h"
+
+using LogType = DataTypes::LogType;
 
 ULogger::ULogger(QObject *parent) :
     QObject(parent)
 {
     switch (ConfigManager::loggingType()) {
-    case DataTypes::LogType::MODCALL:
+    case LogType::MODCALL:
         writerModcall = new WriterModcall(this);
         break;
-    case DataTypes::LogType::FULL:
+    case LogType::FULL:
         Q_FALLTHROUGH();
-    case DataTypes::LogType::FULLAREA:
+    case LogType::FULLAREA:
         writerFull = new WriterFull(this);
         break;
-    case DataTypes::LogType::SQL:
+    case LogType::SQL:
         writerSQL = new WriterSQL(this);
         m_log_db = writerSQL->getDatabase();
         break;
@@ -40,41 +43,60 @@ ULogger::ULogger(QObject *parent) :
 ULogger::~ULogger()
 {
     switch (ConfigManager::loggingType()) {
-    case DataTypes::LogType::MODCALL:
+    case LogType::MODCALL:
         writerModcall->deleteLater();
         break;
-    case DataTypes::LogType::FULL:
-    case DataTypes::LogType::FULLAREA:
+    case LogType::FULL:
+    case LogType::FULLAREA:
         writerFull->deleteLater();
         break;
-    case DataTypes::LogType::SQL:
+    case LogType::SQL:
         writerSQL->deleteLater();
         break;
     }
 }
 
-void ULogger::logIC(const QString &f_char_name, const QString &f_ooc_name,
-                    const QString &f_ipid, const QString &f_area_name,
+void ULogger::logIC(const QString &f_char_name, const QString &f_show_name, const QString &f_ooc_name,
+                    const QString &f_ipid, const QString &f_hwid, const QString &f_area_name,
                     const QString &f_message)
 {
     QString l_time =
         QDateTime::currentDateTime().toString("ddd MMMM d yyyy | hh:mm:ss");
     QString l_logEntry =
         QString(m_logtext.value("ic") + "\n")
-            .arg(l_time, f_char_name, f_ooc_name, f_ipid, f_area_name, f_message);
+            .arg(l_time, (f_char_name + " " + f_show_name), f_ooc_name, (f_ipid + " " + f_hwid), f_area_name, f_message);
     updateAreaBuffer(f_area_name, l_logEntry);
+    {
+        if (ConfigManager::loggingType() == LogType::SQL) {
+            QSqlQuery query(m_log_db);
+            query.prepare("INSERT INTO ic_events (event_time, room_name, char_name, ic_name, message, hwip) VALUES "
+                          "(?, ?, ?, ?, ?, (SELECT hwip FROM hwips WHERE hwid=? AND ipid=?))");
+            query.addBindValue(l_time);
+            query.addBindValue(f_area_name);
+            query.addBindValue(f_char_name);
+            query.addBindValue(f_show_name);
+            query.addBindValue(f_message);
+            query.addBindValue(f_hwid);
+            query.addBindValue(f_ipid);
+
+            writerSQL->flush(query);
+        }
+    }
 }
 
-void ULogger::logOOC(const QString &f_char_name, const QString &f_ooc_name,
-                     const QString &f_ipid, const QString &f_area_name,
-                     const QString &f_message)
+void ULogger::logOOC(const QString &f_char_name, const QString &f_ooc_name, const QString &f_ipid,
+                     const QString &f_hwid, const QString &f_area_name, const QString &f_message)
 {
     QString l_time =
         QDateTime::currentDateTime().toString("ddd MMMM d yyyy | hh:mm:ss");
     QString l_logEntry =
         QString(m_logtext.value("ooc") + "\n")
-            .arg(l_time, f_char_name, f_ooc_name, f_ipid, f_area_name, f_message);
+            .arg(l_time, f_char_name, f_ooc_name, (f_ipid + " " + f_hwid) , f_area_name, f_message);
     updateAreaBuffer(f_area_name, l_logEntry);
+    {
+        QSqlQuery query(m_log_db);
+        query.prepare("Yolo");
+    }
 }
 
 void ULogger::logLogin(const QString &f_char_name, const QString &f_ooc_name,
@@ -91,7 +113,7 @@ void ULogger::logLogin(const QString &f_char_name, const QString &f_ooc_name,
     updateAreaBuffer(f_area_name, l_logEntry);
 }
 
-void ULogger::logCMD(const QString &f_char_name, const QString &f_ipid,
+void ULogger::logCMD(const QString &f_char_name, const QString &f_ipid, const QString &f_hwid,
                      const QString &f_ooc_name, const QString &f_command,
                      const QStringList &f_args, const QString &f_area_name)
 {
@@ -102,21 +124,21 @@ void ULogger::logCMD(const QString &f_char_name, const QString &f_ipid,
     // These must be filtered out
     if (f_command == "login") {
         l_logEntry = QString(m_logtext.value("cmdlogin") + "\n")
-                         .arg(l_time, f_area_name, f_char_name, f_ooc_name, f_ipid);
+                         .arg(l_time, f_area_name, f_char_name, f_ooc_name, (f_ipid + " " + f_hwid));
     }
     else if (f_command == "rootpass") {
         l_logEntry = QString(m_logtext.value("cmdrootpass") + "\n")
-                         .arg(l_time, f_area_name, f_char_name, f_ooc_name, f_ipid);
+                         .arg(l_time, f_area_name, f_char_name, f_ooc_name, (f_ipid + " " + f_hwid));
     }
     else if (f_command == "adduser" && !f_args.isEmpty()) {
         l_logEntry = QString(m_logtext.value("adduser") + "\n")
                          .arg(l_time, f_area_name, f_char_name, f_ooc_name,
-                              f_args.at(0), f_ipid);
+                              f_args.at(0), (f_ipid + " " + f_hwid));
     }
     else {
         l_logEntry = QString(m_logtext.value("cmd") + "\n")
                          .arg(l_time, f_area_name, f_char_name, f_ooc_name,
-                              f_command, f_args.join(" "), f_ipid);
+                              f_command, f_args.join(" "), (f_ipid + " " + f_hwid));
     }
     updateAreaBuffer(f_area_name, l_logEntry);
 }
@@ -152,7 +174,7 @@ void ULogger::logModcall(const QString &f_char_name, const QString &f_ipid,
             .arg(l_time, f_area_name, f_char_name, f_ooc_name, f_ipid);
     updateAreaBuffer(f_area_name, l_logEvent);
 
-    if (ConfigManager::loggingType() == DataTypes::LogType::MODCALL) {
+    if (ConfigManager::loggingType() == LogType::MODCALL) {
         writerModcall->flush(f_area_name, buffer(f_area_name));
     }
 }
@@ -167,7 +189,7 @@ void ULogger::logConnectionAttempt(const QString &f_ip_address,
                              .arg(l_time, f_ip_address, f_ipid, f_hwid);
     updateAreaBuffer("SERVER", l_logEntry);
     {
-        if (ConfigManager::loggingType() == DataTypes::LogType::SQL) {
+        if (ConfigManager::loggingType() == LogType::SQL) {
             {
                 QSqlQuery query(m_log_db);
                 query.prepare("INSERT OR IGNORE INTO ipids(ipid, ip_address)"
@@ -183,6 +205,10 @@ void ULogger::logConnectionAttempt(const QString &f_ip_address,
                 query.addBindValue(f_hwid);
                 query.addBindValue(f_ipid);
                 writerSQL->flush(query);
+            }
+            {
+                QSqlQuery query(m_log_db);
+                query.prepare("INSERT OR IGNORE INTO connect_events()");
             }
         }
     }
@@ -214,10 +240,10 @@ void ULogger::updateAreaBuffer(const QString &f_area_name,
     }
     m_bufferMap.insert(f_area_name, l_buffer);
 
-    if (ConfigManager::loggingType() == DataTypes::LogType::FULL) {
+    if (ConfigManager::loggingType() == LogType::FULL) {
         writerFull->flush(f_log_entry);
     }
-    if (ConfigManager::loggingType() == DataTypes::LogType::FULLAREA) {
+    if (ConfigManager::loggingType() == LogType::FULLAREA) {
         writerFull->flush(f_log_entry, f_area_name);
     }
 }

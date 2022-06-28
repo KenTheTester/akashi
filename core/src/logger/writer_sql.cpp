@@ -39,7 +39,6 @@ WriterSQL::~WriterSQL() { m_db.close(); }
 
 void WriterSQL::flush(QSqlQuery f_query)
 {
-    f_query.exec();
     if (!f_query.exec())
         qDebug() << "SQL Error:" << f_query.lastError().text();
 }
@@ -91,7 +90,7 @@ void WriterSQL::updateDB(int current_version)
             "(hwip) REFERENCES hwips(hwip)ON DELETE CASCADE)");
         l_query.exec("CREATE TABLE IF NOT EXISTS connect_events(event_time "
                      "DATETIME DEFAULT CURRENT_TIMESTAMP,hwip INTEGER NOT "
-                     "NULL,hdid TEXT NOT NULL,failed INTEGER DEFAULT 0,FOREIGN KEY "
+                     "NULL,hdid TEXT NOT NULL,FOREIGN KEY "
                      "(hwip) REFERENCES hwips(hwip)ON DELETE CASCADE)");
         l_query.exec("CREATE TABLE IF NOT EXISTS misc_event_types(type_id INTEGER "
                      "PRIMARY KEY,type_name TEXT NOT NULL UNIQUE)");

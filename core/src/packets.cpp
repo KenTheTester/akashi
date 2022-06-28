@@ -259,7 +259,7 @@ void AOClient::pktIcChat(AreaData *area, int argc, QStringList argv, AOPacket pa
         validated_packet.setContentField(5, m_pos);
 
     server->broadcast(validated_packet, m_current_area);
-    emit logIC((m_current_char + " " + m_showname), m_ooc_name, m_ipid, server->getAreaById(m_current_area)->name(), m_last_message);
+    emit logIC(m_current_char, m_showname, m_ooc_name, m_ipid, server->getAreaById(m_current_area)->name(), m_last_message);
     area->updateLastICMessage(validated_packet.getContent());
 
     area->startMessageFloodguard(ConfigManager::messageFloodguard());
@@ -302,13 +302,13 @@ void AOClient::pktOocChat(AreaData *area, int argc, QStringList argv, AOPacket p
         int l_cmd_argc = l_cmd_argv.length();
 
         handleCommand(l_command, l_cmd_argc, l_cmd_argv);
-        emit logCMD((m_current_char + " " + m_showname), m_ipid, m_ooc_name, l_command, l_cmd_argv, server->getAreaById(m_current_area)->name());
+        emit logCMD((m_current_char + " " + m_showname), m_ipid, m_hwid, m_ooc_name, l_command, l_cmd_argv, server->getAreaById(m_current_area)->name());
         return;
     }
     else {
         server->broadcast(final_packet, m_current_area);
     }
-    emit logOOC((m_current_char + " " + m_showname), m_ooc_name, m_ipid, area->name(), l_message);
+    emit logOOC((m_current_char + " " + m_showname), m_ooc_name, m_ipid, m_hwid, area->name(), l_message);
 }
 
 void AOClient::pktPing(AreaData *area, int argc, QStringList argv, AOPacket packet)

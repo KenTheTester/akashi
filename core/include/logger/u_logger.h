@@ -57,13 +57,13 @@ class ULogger : public QObject
     /**
      * @brief Adds an IC log entry to the area buffer and writes it to the respective log format.
      */
-    void logIC(const QString &f_char_name, const QString &f_ooc_name, const QString &f_ipid,
+    void logIC(const QString &f_char_name, const QString &f_show_name, const QString &f_ooc_name, const QString &f_ipid, const QString &f_hwid,
                const QString &f_area_name, const QString &f_message);
 
     /**
      * @brief Adds an OOC log entry to the area buffer and writes it to the respective log format.
      */
-    void logOOC(const QString &f_char_Name, const QString &f_ooc_name, const QString &f_ipid,
+    void logOOC(const QString &f_char_Name, const QString &f_ooc_name, const QString &f_ipid, const QString &f_hwid,
                 const QString &f_area_name, const QString &f_message);
 
     /**
@@ -75,7 +75,7 @@ class ULogger : public QObject
     /**
      * @brief Adds a command usage to the area buffer and writes it to the respective log format.
      */
-    void logCMD(const QString &f_char_name, const QString &f_ipid, const QString &f_ooc_name, const QString &f_command,
+    void logCMD(const QString &f_char_name, const QString &f_ipid, const QString &f_hwid, const QString &f_ooc_name, const QString &f_command,
                 const QStringList &f_args, const QString &f_area_name);
 
     /**
